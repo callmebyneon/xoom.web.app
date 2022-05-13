@@ -5,8 +5,13 @@ socket.addEventListener("open", () => {
   console.log("Connected to Server: ✅");
 });
 
-socket.addEventListener("message", (message) => {
-  console.log("New Message:", message.data);
+socket.addEventListener("message", async (message) => {
+  console.log(message.data)
+  if (typeof message.data === "string") {
+    console.log("New Message:", message.data);
+  } else {
+    console.log(await message.date.text());
+  }
 });
 
 socket.addEventListener("close", () => {

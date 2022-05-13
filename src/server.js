@@ -15,11 +15,15 @@ const handleListen = () => console.log("Listening on http://localhost:3000");
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const onSocketMessage = (message, isBinary) => {
+  console.log(isBinary ? message : message.toString("utf8"))
+}
+
 wss.on("connection", (socket) => {
   console.log("Connected to Browser: ✅");
   socket.on("close", () => console.log("Connected to Browser: ❌"));
-  socket.on("message", (message) => console.log(message));
-  socket.send("hello!!");
+  socket.on("message", onSocketMessage);
+  socket.send([{ greeting: "hello!!" }]);
 });
 
 server.listen(3000, handleListen);
