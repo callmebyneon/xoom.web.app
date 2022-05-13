@@ -79,10 +79,17 @@ const socket = new WebSocket(`ws://${window.location.host}`); // this socket: re
 ```js
 // server.js
 ...
+// [8] listening the "connection" event, and the callback function pass "socket".
 wss.on("connection", (socket) => {
   console.log("Connected to Browser: ✅");
+
+  // [9] listening the "close" event, and when browser closed the callback function run
   socket.on("close", () => console.log("Connected to Browser: ❌"));
+
+  // [10] listening the "message" event, and the callback function pass "message" just recieved
   socket.on("message", (message) => console.log(message));
+
+  // [11] sending message to connected browser
   socket.send("hello!!");
 });
 ...
@@ -90,15 +97,25 @@ wss.on("connection", (socket) => {
 ```js
 // app.js
 ...
+// [12] listening the "open" evnet, and when server opened the callback function run
 socket.addEventListener("open", () => {
   console.log("Connected to Server: ✅");
 });
 
+// [13] listening the "message" event, and the callback function pass "message" just recieved
 socket.addEventListener("message", (message) => {
   console.log("New Message:", message.data);
 });
 
+// [14] listening the "close" event, and when server closed the callback function run
 socket.addEventListener("close", () => {
   console.log("Connected to Server: ❌");
 });
+
+// [15] sending message to connected server
+setTimeout(() => {
+  socket.send("hello from the browser!");
+}, 10000);
 ```
+- Without "connection" evnet listener [8], browser can listen "open" event of websocket.
+- The first argument of [11], must be of type `string` or an `instance of Buffer`, `ArrayBuffer`, or `Array` or an `Array-like Object`.
