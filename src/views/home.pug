@@ -12,6 +12,13 @@ html(lang="en")
     header 
       h1 Xoom 
     main 
-      h2 Welcome to Xoom! 
-      button(id="colorToggle", onclick="toggleDarkMode();", href="#") 
+      a(id="colorToggle", onclick="toggleDarkMode();", href="#") 
+      hr
+      form#nickname
+        input(type="text", placeholder="choose a nickname.", required)
+        button Save
+      ul
+      form#message
+        input(type="text", placeholder="write a message.", required)
+        button Send
     script(src="/public/js/app.js") 

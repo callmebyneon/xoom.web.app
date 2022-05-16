@@ -1,23 +1,45 @@
+const messageList = document.querySelector("ul");
+const messageForm = document.querySelector("#message");
+const nicknameForm = document.querySelector("#nickname");
+
 // this socket: represents a connection to the server
 const socket = new WebSocket(`ws://${window.location.host}`);
+
+const makeMessage = (type, payload) => {
+  const msg = { type, payload };
+  return JSON.stringify(msg);
+}
 
 socket.addEventListener("open", () => {
   console.log("Connected to Server: ✅");
 });
 
-socket.addEventListener("message", async (message) => {
-  console.log(message.data)
-  if (typeof message.data === "string") {
-    console.log("New Message:", message.data);
-  } else {
-    console.log(await message.date.text());
-  }
+socket.addEventListener("message", (message) => {
+  // const parsed = JSON.parse(message.data);
+  const li = document.createElement("li");
+  li.innerText = message.data;
+  messageList.append(li);
 });
 
 socket.addEventListener("close", () => {
   console.log("Connected to Server: ❌");
 });
 
-setTimeout(() => {
-  socket.send("hello from the browser!");
-}, 10000);
+// sending message form
+const handleMessageSubmit = (event) => {
+  event.preventDefault();
+  const input = messageForm.querySelector("input");
+  socket.send(makeMessage("new_message", input.value));
+  const li = document.createElement("li");
+  li.innerText = `You: ${input.value}`;
+  messageList.append(li);
+  input.value = "";
+};
+messageForm.addEventListener("submit", handleMessageSubmit);
+
+const handleNicknameSubmit = (event) => {
+  event.preventDefault();
+  const input = nicknameForm.querySelector("input");
+  socket.send(makeMessage("nickname", input.value));
+};
+nicknameForm.addEventListener("submit", handleNicknameSubmit);
