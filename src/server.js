@@ -23,7 +23,7 @@ wss.on("connection", (socket) => {
 
   console.log("Connected to Browser: ✅");
   socket.on("close", () => console.log("Connected to Browser: ❌"));
-  
+
   socket.on("message", (msg, isBinary) => {
     const message = isBinary ? msg : msg.toString("utf8");
     console.log(message, isBinary)
@@ -37,7 +37,7 @@ wss.on("connection", (socket) => {
         socket["nickname"] = parsed.payload;
         break;
       default:
-        break;
+        throw new Error('Unexpected message type');
     }
   });
 });

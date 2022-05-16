@@ -25,7 +25,7 @@ socket.addEventListener("close", () => {
   console.log("Connected to Server: ❌");
 });
 
-// sending message form
+// sending message
 const handleMessageSubmit = (event) => {
   event.preventDefault();
   const input = messageForm.querySelector("input");
@@ -37,6 +37,7 @@ const handleMessageSubmit = (event) => {
 };
 messageForm.addEventListener("submit", handleMessageSubmit);
 
+// set the nickname of browser
 const handleNicknameSubmit = (event) => {
   event.preventDefault();
   const input = nicknameForm.querySelector("input");
