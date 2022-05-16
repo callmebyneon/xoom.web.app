@@ -121,3 +121,54 @@ setTimeout(() => {
 - The first argument of [11], must be of type `string` or an `instance of Buffer`, `ArrayBuffer`, or `Array` or an `Array-like Object`.
 
 ### set the type of message from browser
+- [server.js](https://github.com/callmebyneon/xoom.web.app/blob/build-websocket-server/src/server.js)
+- [app.js](https://github.com/callmebyneon/xoom.web.app/blob/build-websocket-server/src/public/js/app.js)
+
+
+## 3. Using socket.io
+- [SocketIO](https://socket.io/)
+
+### example of getting started
+```js
+// server.js
+...
+// [1]  Accorging to 4.5.0 version of SeocketIO, import { Server } from that.
+//      (before) import SocketIO from "socket.io";
+import { Server } from "socket.io";
+...
+const server = http.createServer(app);
+const wsServer = new Server(server); // [2] Initialize a new instance of `socket.io`
+...
+```
+```js
+// app.js
+const socket = io();  // [3] Load the socket.io-client
+
+const welcome = document.getElementById("welcome");
+const form = welcome.querySelector("form");
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = form.querySelector("input");
+  // [4] Emitting event 
+  socket.emit(
+    "enter_room", // a. SET the event name
+    { payload: input.value }, // b. SEND data even javascript object, 
+    () => console.log("server is done!")  // c. or callback function
+  );
+  input.value="";
+})
+```
+- If the browser send a callback function at the last argument like `[4]-c`, server can initiated that function and then that function run on the browser that sent data. Check the code below.
+```js
+// server.js
+...
+wsServer.on("connection", (socket) => {
+  socket.on("enter_room", (msg, done) => {  // d. GET the event name defined from app.js
+    console.log(msg, typeof msg); // → { payload: input.value } object  // e. GET the data without stringify or parse anymore
+    setTimeout(() => done(), 10000);
+  });
+});
+...
+```
+
