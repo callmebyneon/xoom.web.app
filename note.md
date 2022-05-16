@@ -119,3 +119,5 @@ setTimeout(() => {
 ```
 - Without "connection" evnet listener [8], browser can listen "open" event of websocket.
 - The first argument of [11], must be of type `string` or an `instance of Buffer`, `ArrayBuffer`, or `Array` or an `Array-like Object`.
+
+### set the type of message from browser
