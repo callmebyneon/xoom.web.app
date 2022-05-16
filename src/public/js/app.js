@@ -1,46 +1,13 @@
-const messageList = document.querySelector("ul");
-const messageForm = document.querySelector("#message");
-const nicknameForm = document.querySelector("#nickname");
+const socket = io();
 
-// this socket: represents a connection to the server
-const socket = new WebSocket(`ws://${window.location.host}`);
+const welcome = document.getElementById("welcome");
+const form = welcome.querySelector("form");
 
-const makeMessage = (type, payload) => {
-  const msg = { type, payload };
-  return JSON.stringify(msg);
-}
-
-socket.addEventListener("open", () => {
-  console.log("Connected to Server: ✅");
-});
-
-socket.addEventListener("message", (message) => {
-  // const parsed = JSON.parse(message.data);
-  const li = document.createElement("li");
-  li.innerText = message.data;
-  messageList.append(li);
-});
-
-socket.addEventListener("close", () => {
-  console.log("Connected to Server: ❌");
-});
-
-// sending message
-const handleMessageSubmit = (event) => {
+form.addEventListener("submit", (event) => {
   event.preventDefault();
-  const input = messageForm.querySelector("input");
-  socket.send(makeMessage("new_message", input.value));
-  const li = document.createElement("li");
-  li.innerText = `You: ${input.value}`;
-  messageList.append(li);
-  input.value = "";
-};
-messageForm.addEventListener("submit", handleMessageSubmit);
-
-// set the nickname of browser
-const handleNicknameSubmit = (event) => {
-  event.preventDefault();
-  const input = nicknameForm.querySelector("input");
-  socket.send(makeMessage("nickname", input.value));
-};
-nicknameForm.addEventListener("submit", handleNicknameSubmit);
+  const input = form.querySelector("input");
+  socket.emit("enter_room", { payload: input.value }, () => {
+    console.log("server is done!");
+  });  // emit an event called "enter_room", and can send a argument, third one is a function called on server and running on the brower
+  input.value="";
+})
