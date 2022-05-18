@@ -1,56 +1,74 @@
 import http from "http";
-import { Server } from "socket.io";
-// import WebSocket from "ws";
-import express from 'express';
+import SocketIO from "socket.io";
+import express from "express";
 
 const app = express();
 
 app.set("view engine", "pug");
-app.set("views", __dirname + "/views")
+app.set("views", __dirname + "/views");
 app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (_, res) => res.render("home"));
 app.get("/*", (_, res) => res.redirect("/"));
 
-const server = http.createServer(app);
-const wsServer = new Server(server);
+const httpServer = http.createServer(app);
+const wsServer = SocketIO(httpServer);
 
-wsServer.on("connection", (socket) => {
-  // console.log(socket);
-  socket.on("enter_room", (msg, done) => {
-    console.log(msg, typeof msg)
-    setTimeout(() => done(), 10000);
-  }); // { payload: input.value } object
-});
-
-/* 
-const wss = new WebSocket.Server({ server });
-const sockets = [];
-
-wss.on("connection", (socket) => {
-  sockets.push(socket);
-  socket["nickname"] = "Anonyumous";
-
-  console.log("Connected to Browser: ✅");
-  socket.on("close", () => console.log("Connected to Browser: ❌"));
-
-  socket.on("message", (msg, isBinary) => {
-    const message = isBinary ? msg : msg.toString("utf8");
-    console.log(message, isBinary)
-    const parsed = JSON.parse(message);
-    switch(parsed.type) {
-      case "new_message":
-        sockets.forEach((aSocket) => aSocket.send(`${socket.nickname}: ${parsed.payload}`));
-        // sockets.forEach((aSocket) => aSocket.send(isBinary ? message : message.toString("utf8")));
-        break;
-      case "nickname":
-        socket["nickname"] = parsed.payload;
-        break;
-      default:
-        throw new Error('Unexpected message type');
+function publicRooms() {
+  const {
+    sockets: {
+      adapter: { sids, rooms }
+    }
+  } = wsServer;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
     }
   });
-});
-*/
+  return publicRooms;
+}
 
-const handleListen = () => console.log("Listening on http://localhost:3000");
-server.listen(3000, handleListen);
+function roomMembers(roomName) {
+  return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
+
+wsServer.on("connection", (socket) => {
+  //console.log(socket);
+  socket["nickname"] = "anonymous";
+  wsServer.sockets.emit("room_change", publicRooms());
+
+  socket.onAny((event) => {
+    console.log(`Socket Event: ${event}`);
+  });
+
+  socket.on("enter_room", (nickname, roomName, done) => {
+    socket["nickname"] = nickname;
+    socket.join(roomName);
+    done(roomMembers(roomName));
+    socket.to(roomName).emit("welcome", socket.nickname, roomMembers(roomName));
+    wsServer.sockets.emit("room_change", publicRooms());
+  });
+
+  socket.on("disconnecting", () => {
+    socket.rooms.forEach((room) =>
+      socket.to(room).emit("bye", socket.nickname, roomMembers(room) - 1)
+    );
+  });
+
+  socket.on("disconnect", () => {
+    wsServer.sockets.emit("room_change", publicRooms());
+  });
+
+  socket.on("new_message", (newMsg, room, done) => {
+    socket.to(room).emit("new_message", `${socket.nickname}: ${newMsg}`);
+    done();
+  });
+
+  socket.on("nickname", (userName, newName) => {
+    socket["nickname"] = newName;
+    wsServer.sockets.emit("nickname_change", userName, newName);
+  });
+});
+
+const handleListen = () => console.log(`Listening on http://localhost:${process.env.PORT}`);
+httpServer.listen(process.env.PORT, handleListen);
