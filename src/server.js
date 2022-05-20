@@ -64,11 +64,12 @@ wsServer.on("connection", (socket) => {
     done();
   });
 
-  socket.on("nickname", (userName, newName) => {
+  socket.on("nickname", (userName, newName, room, done) => {
     socket["nickname"] = newName;
-    wsServer.sockets.emit("nickname_change", userName, newName);
+    socket.to(room).emit("nickname_change", userName, newName);
+    done();
   });
 });
 
-const handleListen = () => console.log(`Listening on http://localhost:${process.env.PORT}`);
-httpServer.listen(process.env.PORT, handleListen);
+const handleListen = () => console.log(`Listening on http://localhost:3000`);
+httpServer.listen(3000, handleListen);

@@ -29,7 +29,9 @@ function handleNicknameSubmit(event) {
   event.preventDefault();
   const input = room.querySelector("#name input");
   const newName = input.value;
-  socket.emit("nickname", nickname, newName);
+  socket.emit("nickname", nickname, newName, roomName, () => {
+    addMessage(`success: ${nickname} => ${newName}`, "announcement");
+  });
   nickname = newName;
 }
 
@@ -142,5 +144,5 @@ socket.on("room_change", (rooms) => {
 });
 
 socket.on("nickname_change", (userName, newName) => {
-  addMessage(`${userName} => ${newName}`, "announcement");
+  addMessage(`nickname changed: ${userName} => ${newName}`, "announcement");
 });

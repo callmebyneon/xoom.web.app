@@ -165,10 +165,14 @@ form.addEventListener("submit", (event) => {
 ...
 wsServer.on("connection", (socket) => {
   socket.on("enter_room", (msg, done) => {  // d. GET the event name defined from app.js
-    console.log(msg, typeof msg); // → { payload: input.value } object  // e. GET the data without stringify or parse anymore
+    console.log(msg, typeof msg); // → { payload: <input.value> } object  // e. GET the data without stringify or parse anymore
     setTimeout(() => done(), 10000);
   });
 });
 ...
 ```
 
+### message data processing
+- functions   
+  - SAVE nickname and ENTER the public chat room   
+    1. 

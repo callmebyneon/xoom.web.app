@@ -6,9 +6,7 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title Xoom
     link(rel="stylesheet", href="https://unpkg.com/mvp.css")
-    link(rel="stylesheet", href="/public/css/color-mode.css")
-    link(rel="stylesheet", href="/public/css/main.css")
-    script(src="/public/js/color-mode.js")
+    link(rel="stylesheet", href="/public/style/main.css")
   body 
     header 
       h1 Xoom 
@@ -28,7 +26,11 @@ html(lang="en")
           ul
         div#room.wrapper
           h3
-          h4
+          form#name
+            label 
+              span You: 
+              input(type="text", placeholder="Change nickname?", required)
+            button Save
           ul.message 
           form#msg
             input(type="text", placeholder="message", required)
