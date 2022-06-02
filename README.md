@@ -1,4 +1,4 @@
-# 📺 Xoom
+# 📺 P2P Videocall with WebRTC
 
 > Zoom Clone using NodeJS, WebRTC and Websockets.
 
