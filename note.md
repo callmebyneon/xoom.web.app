@@ -252,3 +252,12 @@ wsServer.on("connection", (socket) => {
 - If the browser emit the welcome event when someone enter the room, The Caller **create offer and send this** to The Callee → The Callee **get the offer and create&send answer** → The Caller **get the answer** from the Callee → And **exchange ice(Internet Connectivity Establishment) candidate** → Then exchange the each stream peer to peer
 - [WebRTC Native APIs](https://webrtc.github.io/webrtc-org/native-code/native-apis/)  
 <img src="./__WebRTC_Native_APIs_Diagram.png" alt="WebRTC Natvie APIs - Block Diagram" width="70%" height="70%"></img>
+
+
+## 4. You have to remenber that this is not just the anwser to all the problems!
+- If you put more peers, it becomes more heavy.
+  - This is the reason why someone use SFU(Selective Forwarding Unit).
+- And you can use data channel instead of Socket.io.
+
+### data channel
+- RTCPeerConnection.createDataChannel(): https://developer.mozilla.org/ko/docs/Web/API/RTCPeerConnection/createDataChannel
