@@ -1,8 +1,9 @@
 # Lecture Notes
 
 > Core concepts and note explain shortly.   
+> `#socket.io` `#websocket` `#WebRTC` `#real-time-chat` `#videocall`
 
-The contens below are in the order of lecture and development.
+The contents below are in the order of lecture and development.
 
 ## 1. Set up the project
 ### nodemon.json
@@ -120,4 +121,134 @@ setTimeout(() => {
 - Without "connection" evnet listener [8], browser can listen "open" event of websocket.
 - The first argument of [11], must be of type `string` or an `instance of Buffer`, `ArrayBuffer`, or `Array` or an `Array-like Object`.
 
-### set the type of message from browser
+## 3. Make P2P Videocall room with WebRTC
+### WebRTC (https://webrtc.org/)
+- [reference post](https://juneyr.dev/webrtc-basics) 
+- (WebRTC image)   
+<img src="./__webRTC.png" alt="webRTC image" width="50%" height="50%"></img>
+
+
+### get camera and audio of user in the room
+
+```js
+// app.js
+async function getCameras() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevuces();
+    const cameras = devices.filter((device) => device.kind === "videoinput");
+    ...
+  } catch (e) {
+    ...
+  }
+}
+
+async function getMedia(deviceId) {
+  ...
+  try {
+    myStream = await navigator.mediaDevices.getUserMedia(
+      deviceId ? cameraConstraint : initialConstraint
+    );
+    ...
+  } catch (e) {
+    ...
+  }
+}
+```
+- Navigator (window.navigator): https://developer.mozilla.org/ko/docs/Web/API/Navigator
+- Navigator.mediaDevices: Return the MediaStream object(The MediaDevices singleton object): https://developer.mozilla.org/ko/docs/Web/API/Navigator/mediaDevices
+- MediaDevices.enumerateDevices(): Method to obtain an array of information about the media input and output devices available on the system:  https://developer.mozilla.org/ko/docs/Web/API/MediaDevices/enumerateDevices
+- MediaDevices.getUserMedia(): https://developer.mozilla.org/ko/docs/Web/API/MediaDevices/getUserMedia
+- And, `MediaDevices.enumerateDevices` method return Promise that resolved with a MediaDeviceInfo array describing the devices. Therefore `getCameras` and `getMedia` functions are async function.
+
+### create RTC connection
+- This is 1:1 Communication : Peer A (Caller) & Peer B (Callee)
+```js
+// app.js
+async function initCall() {
+  await getMedia();
+  makeConnection();
+}
+...
+```
+- To create a RTC connection in both Browsers(Peers), when both browsers join the room, the browsers run the `initCall` function. And run the `makeConnection` by that function. 
+```js
+// app.js
+let myStream;
+let myPeerConnection;
+...
+function makeConnection() {
+  myPeerConnection = new RTCPeerConnection();
+  ...
+  myStream
+    .getTracks()
+    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
+```
+
+### socket events for RTC(Real-Time Communication)
+```js
+// app.js
+socket.on("welcome", async () => {
+  // These code run on Peer A(Caller)
+  // If someone else joined the room, signaling process will be started.
+  ...
+  socket.emit("offer", offer, roomName);
+  ...
+});
+
+socket.on("offer", async (offer) => {
+  // These code run on Peer B (Callee)
+  // Get the offer from Peer A, and then Peer B set the remote description
+  ...
+  socket.emit("answer", answer, roomName);
+  ...
+});
+
+socket.on("answer", (answer) => {
+  // Finally, Peer A get the anser from Peer B.
+  // Peer A set the remote description.
+  myPeerConnection.setRemoteDescription(answer);
+});
+...
+```
+```js
+// app.js
+function makeConnection() {
+  ...
+  // Got ice candidate and send this,
+  myPeerConnection.addEventListener("icecandidate", handleIce);
+  // Then we are getting the stream from the another peer.
+  // And this peer's stream is painted in the video#peersStream
+  myPeerConnection.addEventListener("addstream", handleAddStream);
+  ...
+}
+
+function handleIce(data) {
+  socket.emit("ice", data.candidate, roomName);
+}
+
+function handleAddStream(data) {
+  const peersStream = document.querySelector("#peerFace video");
+  peersStream.srcObject = data.stream;
+}
+```
+```js
+// server.js
+wsServer.on("connection", (socket) => {
+  ...
+  socket.on("offer", (offer, roomName) => {
+    socket.to(roomName).emit("offer", offer);
+  });
+
+  socket.on("answer", (answer, roomName) => {
+    socket.to(roomName).emit("answer", answer);
+  });
+
+  socket.on("ice", (ice, roomName) => {
+    socket.to(roomName).emit("ice", ice);
+  });
+});
+```
+- If the browser emit the welcome event when someone enter the room, The Caller **create offer and send this** to The Callee → The Callee **get the offer and create&send answer** → The Caller **get the answer** from the Callee → And **exchange ice(Internet Connectivity Establishment) candidate** → Then exchange the each stream peer to peer
+- [WebRTC Native APIs](https://webrtc.github.io/webrtc-org/native-code/native-apis/)  
+<img src="./__WebRTC_Native_APIs_Diagram.png" alt="WebRTC Natvie APIs - Block Diagram" width="70%" height="70%"></img>
