@@ -2,7 +2,7 @@
 
 [노마드 코더의 줌 클론 챌린지](https://nomadcoders.co/noom-challenge) 결과 코드입니다.
 
-이 코드는 CodeSandbox에서 실행할 수도 있습니다. 👉 [codesandbox draft page](https://ewf8kv.sse.codesandbox.io/)
+다음 링크에서 CodeSandbox에서 실행된 화면을 확인할 수도 있습니다. 👉 [codesandbox draft page](https://ewf8kv.sse.codesandbox.io/)
 
 
 ## 사용 기술
