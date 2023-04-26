@@ -2,9 +2,9 @@
 
 [노마드 코더의 줌 클론 챌린지](https://nomadcoders.co/noom-challenge) 결과 코드입니다.
 
-다음 링크에서 CodeSandbox에서 실행된 화면을 확인할 수도 있습니다. 👉 [codesandbox draft page](https://ewf8kv.sse.codesandbox.io/)
 
-> _repo from sandbox 👉 [callmebyneon/xoom.web.app_sandbox]https://github.com/callmebyneon/xoom.web.app_sandbox)_
+> _챌린지 과제 결과이기 때문에 과제 내용 유출 금지를 위해 전체 코드는 공개되어 있지 않습니다._
+
 
 
 ## 사용 기술
